@@ -2,6 +2,8 @@ build
 mx.scratch
 !.settings
 
+simulator/
+
 # Prerequisites
 *.d
 

@@ -22,6 +22,7 @@
 #ifndef __MAIN_H
 #define __MAIN_H
 
+#include "stm32g4xx_hal_dma.h"
 #ifdef __cplusplus
 extern "C" {
 #endif

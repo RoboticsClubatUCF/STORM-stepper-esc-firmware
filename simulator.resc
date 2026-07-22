@@ -1,0 +1,18 @@
+logFile $ORIGIN/simulator/hello_world-renode.log True
+
+$name?="nucleo_g474re"
+$bin?=@build/Debug/esc-firmware.elf
+
+using sysbus
+mach create $name
+
+machine LoadPlatformDescription @stm32g474.repl
+machine EnableProfiler $ORIGIN/simulator/metrics.dump
+
+showAnalyzer lpuart1
+showAnalyzer usart1
+
+sysbus LoadELF @build/Debug/esc-firmware.elf
+start
+
+machine StartGdbServer 3333
