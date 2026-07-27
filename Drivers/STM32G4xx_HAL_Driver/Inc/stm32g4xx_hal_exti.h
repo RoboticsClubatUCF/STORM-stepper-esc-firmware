@@ -27,6 +27,7 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32g4xx_hal_def.h"
 
+
 /** @addtogroup STM32G4xx_HAL_Driver
   * @{
   */

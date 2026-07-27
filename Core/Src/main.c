@@ -20,7 +20,10 @@
 #include "main.h"
 #include "cmsis_gcc.h"
 #include "cmsis_os.h"
+#include "cmsis_os2.h"
 #include "stm32g4xx_hal_dma.h"
+#include "app_freertos.h"
+#include <stdint.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -329,10 +332,6 @@ static void MX_SPI3_Init(void)
 
 }
 
-void Dma_Interupt_SPI3(DMA_HandleTypeDef *hdma) {
-
-}
-
 /**
   * Enable DMA controller clock
   */
@@ -390,6 +389,10 @@ static void MX_GPIO_Init(void)
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void *argument)
 {
+  // Create the trinamic spi task.
+  SerialSPIParams_t params = {&hspi1};
+  xTaskCreate(&Trinamic_SPI_Task, "Trinamic SPI Task", 2048, &params, osPriorityNormal, defaultTaskHandle);
+
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
   for(;;)
