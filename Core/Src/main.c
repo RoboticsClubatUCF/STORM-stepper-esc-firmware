@@ -64,6 +64,11 @@ const osThreadAttr_t defaultTask_attributes = {
   .stack_size = 128 * 4
 };
 /* USER CODE BEGIN PV */
+osThreadId_t trinamicTaskHandle;
+const osThreadAttr_t trinamicTask_attributes = {
+    .name = "trinamic task",
+    .priority = (osPriority_t)osPriorityAboveNormal,
+    .stack_size = 128 * 4};
 
 /* USER CODE END PV */
 
@@ -144,9 +149,14 @@ int main(void)
   /* Create the thread(s) */
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
-
+ 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+
+  SerialSPIParams_t params = {&hspi1};
+  trinamicTaskHandle =
+      osThreadNew(Trinamic_SPI_Task, &params, &trinamicTask_attributes);
+
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
@@ -390,15 +400,12 @@ static void MX_GPIO_Init(void)
 void StartDefaultTask(void *argument)
 {
   // Create the trinamic spi task.
-  SerialSPIParams_t params = {&hspi1};
-  xTaskCreate(&Trinamic_SPI_Task, "Trinamic SPI Task", 2048, &params, osPriorityNormal, defaultTaskHandle);
 
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
-  for(;;)
-  {
+  for (;;) {
     osDelay(1);
-    printf("Hello");  
+    printf("Hello");
   }
   /* USER CODE END 5 */
 }
