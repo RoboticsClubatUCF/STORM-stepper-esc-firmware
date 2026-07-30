@@ -21,6 +21,7 @@
 #include "cmsis_os.h"
 #include "stdlib.h"
 #include "stdio.h"
+#include "stm32g4xx_hal_def.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -89,12 +90,16 @@ void StartDefaultTask(void *argument);
  * @param pvParameters
  */
 void Trinamic_SPI_Task(void *pvParameters) {
-  uint8_t *RX_Buffer = calloc(1000, sizeof(int));
+  uint8_t *RX_Buffer = calloc(100, sizeof(int));
 
   for (;;) {
     SerialSPIParams_t *parms = pvParameters;
 
-    HAL_SPI_Receive_DMA(parms->hspi1, RX_Buffer, 1000);
+    HAL_StatusTypeDef status = HAL_SPI_Receive_DMA(parms->hspi1, RX_Buffer, 100);
+
+    if (status != HAL_OK) {
+      // Error
+    }
   }
 
   // Cleanup
