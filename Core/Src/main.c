@@ -18,12 +18,9 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "cmsis_gcc.h"
 #include "cmsis_os.h"
-#include "cmsis_os2.h"
-#include "stm32g4xx_hal_dma.h"
-#include "app_freertos.h"
-#include <stdint.h>
+#include "stdlib.h"
+#include "stdio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -52,9 +49,6 @@ SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi3;
 DMA_HandleTypeDef hdma_spi1_tx;
 DMA_HandleTypeDef hdma_spi3_tx;
-
-uint8_t Buffer_Src[]={0,1,2,3,4,5,6,7,8,9};
-uint8_t Buffer_Dest[10];
 
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
@@ -87,6 +81,25 @@ void StartDefaultTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+/**
+ * @brief RTOS Task for Trinamic Stepper motor driver. This task will
+ * communicate with the driver via SPI1.
+ *
+ * @param pvParameters
+ */
+void Trinamic_SPI_Task(void *pvParameters) {
+  uint8_t *RX_Buffer = calloc(1000, sizeof(int));
+
+  for (;;) {
+    SerialSPIParams_t *parms = pvParameters;
+
+    HAL_SPI_Receive_DMA(parms->hspi1, RX_Buffer, 1000);
+  }
+
+  // Cleanup
+  free(RX_Buffer);
+}
 
 /* USER CODE END 0 */
 
@@ -149,7 +162,7 @@ int main(void)
   /* Create the thread(s) */
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
- 
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
 
@@ -359,9 +372,6 @@ static void MX_DMA_Init(void)
   /* DMA1_Channel2_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
-  /* DMAMUX_OVR_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMAMUX_OVR_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(DMAMUX_OVR_IRQn);
 
 }
 
@@ -399,8 +409,6 @@ static void MX_GPIO_Init(void)
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void *argument)
 {
-  // Create the trinamic spi task.
-
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
   for (;;) {

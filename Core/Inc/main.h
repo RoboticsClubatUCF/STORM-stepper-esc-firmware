@@ -22,7 +22,6 @@
 #ifndef __MAIN_H
 #define __MAIN_H
 
-#include "stm32g4xx_hal_dma.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -54,6 +53,10 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
+
+typedef struct {
+  SPI_HandleTypeDef *hspi1;
+} SerialSPIParams_t;
 
 /* USER CODE END EFP */
 
