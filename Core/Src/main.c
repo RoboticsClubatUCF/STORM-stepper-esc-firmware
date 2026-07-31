@@ -22,6 +22,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "stm32g4xx_hal_def.h"
+#include <stdint.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -90,16 +91,22 @@ void StartDefaultTask(void *argument);
  * @param pvParameters
  */
 void Trinamic_SPI_Task(void *pvParameters) {
-  uint8_t *RX_Buffer = calloc(100, sizeof(int));
+  uint8_t *RX_Buffer = calloc(5, sizeof(uint8_t));
 
   for (;;) {
     SerialSPIParams_t *parms = pvParameters;
 
-    HAL_StatusTypeDef status = HAL_SPI_Receive_DMA(parms->hspi1, RX_Buffer, 100);
+    HAL_StatusTypeDef status = HAL_SPI_Receive_DMA(parms->hspi1, RX_Buffer, 2);
 
     if (status != HAL_OK) {
       // Error
+      printf("An unexpected SPI error has occured!");
     }
+
+    // Serialize the datagram packet from the trinamic driver.
+    Trinamic_Datagram *datagram = (Trinamic_Datagram *)RX_Buffer;
+
+    printf("Packet Register Address: %c", datagram->register_address);
   }
 
   // Cleanup
@@ -171,7 +178,8 @@ int main(void)
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
 
-  SerialSPIParams_t params = {&hspi1};
+  // Placeholder address is 0x22
+  SerialSPIParams_t params = {.hspi1=&hspi1, .address=0x22};
   trinamicTaskHandle =
       osThreadNew(Trinamic_SPI_Task, &params, &trinamicTask_attributes);
 
